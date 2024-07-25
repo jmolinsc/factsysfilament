@@ -30,7 +30,7 @@ return new class extends Migration
             $table->foreignId('id_familia')->constrained('familias')
                 ->onDelete('cascade')->onUpdate('cascade');
 
-            $table->foreign('id_linea')->references('id')->on('lineas')
+            $table->foreignId('id_linea')->constrained('lineas')
                 ->onDelete('cascade')->onUpdate('cascade');
         });
     }
