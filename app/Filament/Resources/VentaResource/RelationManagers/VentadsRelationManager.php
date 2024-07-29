@@ -4,7 +4,10 @@ namespace App\Filament\Resources\VentaResource\RelationManagers;
 
 use App\Models\Producto;
 use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -24,17 +27,29 @@ class VentadsRelationManager extends RelationManager
         return $form
             ->schema([
 
-                Forms\Components\Select::make('productoid')
+                Select::make('productoid')
                     ->relationship(
                         name: 'producto',
                         titleAttribute: 'producto'
                     )->preload()->searchable()->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
-                        $producto = Producto::find($get('productoid'));
-                        $set('precio', $producto['precio_venta']);
-                        $set('foto', $producto['foto']);
+                        $set('precio', '');
+                        $set('foto', '');
+                        $set('producto.descripcion', '');
+                        $set('cantidad', '');
+                        if ($get('productoid')) {
+                            $producto = Producto::find($get('productoid'));
+                            $set('precio', $producto['precio_venta']);
+                            $set('foto', $producto['foto']);
+                            $set('producto.descripcion', $producto['descripcion']);
+                        }
                     }),
+                    Fieldset::make('Producto')
+                    ->relationship('producto')
+                    ->schema([
+                        TextInput::make('descripcion')->disabled(),
 
+                    ]),
                 Forms\Components\TextInput::make('cantidad')
                     ->required()
                     ->maxLength(255),
