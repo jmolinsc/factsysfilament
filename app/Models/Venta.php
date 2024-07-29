@@ -13,7 +13,7 @@ class Venta extends Model
         'mov',
         'movid',
         'fechaemision',
-        'cliente',
+        'clienteid',
         'sucursal',
         'referencia',
         'concepto',
@@ -33,5 +33,10 @@ class Venta extends Model
     public function ventads()
     {
         return $this->hasMany(Ventad::class, 'idventa');
+    }
+
+    public function cte()
+    {
+        return $this->belongsTo(Cte::class, 'clienteid');
     }
 }

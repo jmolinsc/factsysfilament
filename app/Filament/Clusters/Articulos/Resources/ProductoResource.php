@@ -7,6 +7,8 @@ use App\Filament\Clusters\Articulos\Resources\ProductoResource\Pages;
 use App\Filament\Clusters\Articulos\Resources\ProductoResource\RelationManagers;
 use App\Models\Producto;
 use Filament\Forms;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Form;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
@@ -36,12 +38,21 @@ class ProductoResource extends Resource
                 Forms\Components\TextInput::make('producto')
                     ->required()
                     ->maxLength(191),
+                Forms\Components\Select::make('tipo')
+                    ->options([
+                        'Normal' => 'Normal',
+                        'Serie' => 'Serie',
+                        'Activo Fijo' => 'Activo Fijo',
+                    ])->preload()->searchable(),
                 Forms\Components\TextInput::make('descripcion')
                     ->required()
                     ->maxLength(50),
-                Forms\Components\TextInput::make('unidad')
-                    ->required()
-                    ->maxLength(50),
+                Forms\Components\Select::make('unidad')
+                    ->options([
+                        'und' => 'und',
+                        'lt' => 'lt',
+                        'lb' => 'lb',
+                    ])->preload()->searchable(),
                 Forms\Components\TextInput::make('peso')
                     ->required()
                     ->maxLength(50),
@@ -51,27 +62,33 @@ class ProductoResource extends Resource
                 Forms\Components\TextInput::make('precio_venta')
                     ->required()
                     ->numeric(),
-                Forms\Components\FileUpload::make('foto')->directory('products')->preserveFilenames(),
+
                 Forms\Components\Select::make('id_categoria')
                     ->relationship(
                         name: 'categoria',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('id_fabricante')
                     ->relationship(
                         name: 'fabricante',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('id_familia')
                     ->relationship(
                         name: 'familia',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('id_linea')
                     ->relationship(
                         name: 'linea',
                         titleAttribute: 'nombre'
-                    )
+                    )->preload()->searchable(),
+                Card::make('')
+                    ->schema([
+                        Forms\Components\FileUpload::make('foto')->directory('products')
+                            ->preserveFilenames()
+                    ]),
+
             ]);
     }
 

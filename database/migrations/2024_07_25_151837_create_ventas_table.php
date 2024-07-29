@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('mov', 50)->nullable();
             $table->string('movid', 50)->nullable();
-            $table->string('fechaemision', 50)->nullable();
-            $table->string('cliente', 50)->nullable();
+            $table->date('fechaemision', 50)->nullable();
             $table->string('sucursal', 50)->nullable();
             $table->string('referencia', 50)->nullable();
             $table->string('concepto', 50)->nullable();
@@ -26,6 +25,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreignId('id_alm')->constrained('alms')
+                ->onDelete('cascade')->onUpdate('cascade')->nullable();
+
+            $table->foreignId('clienteid')->constrained('ctes')
                 ->onDelete('cascade')->onUpdate('cascade')->nullable();
         });
     }

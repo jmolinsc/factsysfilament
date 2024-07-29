@@ -26,7 +26,6 @@ return new class extends Migration
 
             $table->foreignId('id_ctegrupo')->constrained('ctegrupo')
                 ->onDelete('cascade')->onUpdate('cascade');
-
             $table->foreignId('id_ctefamilia')->constrained('ctefamilias')
                 ->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('id_pais')->constrained('paises')

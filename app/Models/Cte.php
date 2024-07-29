@@ -69,4 +69,9 @@ class Cte extends Model
     {
         return $this->belongsTo(Agente::class, 'id_agente');
     }
+
+    public function ventas()
+    {
+        return $this->hasMany(Venta::class);
+    }
 }

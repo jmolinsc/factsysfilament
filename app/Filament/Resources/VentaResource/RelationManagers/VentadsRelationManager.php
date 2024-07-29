@@ -44,7 +44,7 @@ class VentadsRelationManager extends RelationManager
                             $set('producto.descripcion', $producto['descripcion']);
                         }
                     }),
-                    Fieldset::make('Producto')
+                Fieldset::make('Producto')
                     ->relationship('producto')
                     ->schema([
                         TextInput::make('descripcion')->disabled(),

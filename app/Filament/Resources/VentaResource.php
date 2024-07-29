@@ -24,14 +24,20 @@ class VentaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('mov')
-                    ->maxLength(50),
+                Forms\Components\Select::make('mov')
+                ->options([
+                    'Factura' => 'Factura',
+                    'Credito FIscal' => 'Credito FIscal',
+                    'Ticket' => 'Ticket',
+                ])->preload()->searchable(),
                 Forms\Components\TextInput::make('movid')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('fechaemision')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('cliente')
-                    ->maxLength(50),
+                    ->maxLength(50)->disabled(),
+                Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
+                    Forms\Components\Select::make('clienteid')
+                    ->relationship(
+                        name: 'cte',
+                        titleAttribute: 'codigo'
+                    )->preload()->searchable(),
                 Forms\Components\TextInput::make('sucursal')
                     ->maxLength(50),
                 Forms\Components\TextInput::make('referencia')

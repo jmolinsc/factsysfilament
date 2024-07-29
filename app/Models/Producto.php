@@ -11,6 +11,7 @@ class Producto extends Model
 
     static $rules = [
         'producto' => 'required',
+        'tipo' => 'required',
         'precio_compra' => 'required',
         'precio_venta' => 'required',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -32,7 +33,8 @@ class Producto extends Model
         'peso',
         'unidad',
         'id_categoria',
-        'id_fabricante', 'id_familia', 'id_linea'
+        'id_fabricante', 'id_familia', 'id_linea',
+        'tipo'
     ];
 
     public function categoria()
