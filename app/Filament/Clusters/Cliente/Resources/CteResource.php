@@ -66,34 +66,34 @@ class CteResource extends Resource
                     ->relationship(
                         name: 'ctegrupo',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('id_ctefamilia')
                     ->relationship(
                         name: 'ctefamilia',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
 
                 Forms\Components\Select::make('id_pais')
                     ->relationship(
                         name: 'pais',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
 
                 Forms\Components\Select::make('id_departamento')
                     ->relationship(
                         name: 'departamento',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('agente.nombre')
                     ->relationship(
                         name: 'agente',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
                 Forms\Components\Select::make('id_ctecategoria')
                     ->relationship(
                         name: 'ctecategoria',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
             ]);
     }
 
