@@ -41,7 +41,7 @@ class VentadsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('precio')
                     ->required()->readOnly(true)
                     ->maxLength(255),
-               
+
             ]);
     }
 
