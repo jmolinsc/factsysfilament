@@ -20,4 +20,8 @@ class CreateVenta extends CreateRecord
             ],
         );
     }
+
+
+
+
 }

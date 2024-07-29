@@ -6,6 +6,7 @@ use App\Filament\Resources\VentaResource\Pages;
 use App\Filament\Resources\VentaResource\RelationManagers;
 use App\Filament\Resources\VentaResource\RelationManagers\VentadsRelationManager;
 use App\Models\Venta;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,15 +26,15 @@ class VentaResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('mov')
-                ->options([
-                    'Factura' => 'Factura',
-                    'Credito FIscal' => 'Credito FIscal',
-                    'Ticket' => 'Ticket',
-                ])->preload()->searchable(),
+                    ->options([
+                        'Factura' => 'Factura',
+                        'Credito FIscal' => 'Credito FIscal',
+                        'Ticket' => 'Ticket',
+                    ])->preload()->searchable(),
                 Forms\Components\TextInput::make('movid')
                     ->maxLength(50)->disabled(),
                 Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
-                    Forms\Components\Select::make('clienteid')
+                Forms\Components\Select::make('clienteid')
                     ->relationship(
                         name: 'cte',
                         titleAttribute: 'codigo'
@@ -54,7 +55,8 @@ class VentaResource extends Resource
                     ->relationship(
                         name: 'alm',
                         titleAttribute: 'nombre'
-                    )->preload()->searchable(),
+                    )->preload()->searchable()
+
             ]);
     }
 
