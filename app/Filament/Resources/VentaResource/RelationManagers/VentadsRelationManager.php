@@ -4,6 +4,7 @@ namespace App\Filament\Resources\VentaResource\RelationManagers;
 
 use App\Models\Producto;
 use Filament\Forms;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -12,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class VentadsRelationManager extends RelationManager
 {
@@ -28,15 +30,18 @@ class VentadsRelationManager extends RelationManager
                         titleAttribute: 'producto'
                     )->preload()->searchable()->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
-                        $set('precio', Producto::find($get('productoid'))->precio_venta);
+                        $producto = Producto::find($get('productoid'));
+                        $set('precio', $producto['precio_venta']);
+                        $set('foto', $producto['foto']);
                     }),
-                   
+
                 Forms\Components\TextInput::make('cantidad')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('precio')
                     ->required()->readOnly(true)
                     ->maxLength(255),
+               
             ]);
     }
 
@@ -48,7 +53,7 @@ class VentadsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('producto.producto'),
                 Tables\Columns\TextColumn::make('producto.descripcion'),
-                
+
                 Tables\Columns\TextColumn::make('cantidad'),
                 Tables\Columns\TextColumn::make('precio'),
             ])
