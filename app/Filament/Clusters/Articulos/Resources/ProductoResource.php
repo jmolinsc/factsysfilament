@@ -23,49 +23,55 @@ class ProductoResource extends Resource
 
     protected static ?string $cluster = Articulos::class;
 
-   protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-   protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 1;
 
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('codigo')
-                    ->required()
-                    ->maxLength(50),
+
                 Forms\Components\TextInput::make('producto')
                     ->required()
                     ->maxLength(191),
+                Forms\Components\TextInput::make('descripcion')
+                    ->required()
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('unidad')
+                    ->required()
+                    ->maxLength(50),
+                Forms\Components\TextInput::make('peso')
+                    ->required()
+                    ->maxLength(50),
                 Forms\Components\TextInput::make('precio_compra')
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('precio_venta')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('foto')
-                    ->maxLength(100),
+                Forms\Components\FileUpload::make('foto')->directory('products')->preserveFilenames(),
                 Forms\Components\Select::make('id_categoria')
-                ->relationship(
-                    name: 'categoria',
-                    titleAttribute: 'nombre'
-                ),
+                    ->relationship(
+                        name: 'categoria',
+                        titleAttribute: 'nombre'
+                    ),
                 Forms\Components\Select::make('id_fabricante')
-                ->relationship(
-                    name: 'fabricante',
-                    titleAttribute: 'nombre'
-                ),
+                    ->relationship(
+                        name: 'fabricante',
+                        titleAttribute: 'nombre'
+                    ),
                 Forms\Components\Select::make('id_familia')
-                ->relationship(
-                    name: 'familia',
-                    titleAttribute: 'nombre'
-                ),
+                    ->relationship(
+                        name: 'familia',
+                        titleAttribute: 'nombre'
+                    ),
                 Forms\Components\Select::make('id_linea')
-                ->relationship(
-                    name: 'linea',
-                    titleAttribute: 'nombre'
-                )
+                    ->relationship(
+                        name: 'linea',
+                        titleAttribute: 'nombre'
+                    )
             ]);
     }
 
@@ -73,17 +79,18 @@ class ProductoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('codigo')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('producto')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('descripcion')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('precio_compra')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('precio_venta')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('foto')
+                Tables\Columns\ImageColumn::make('foto')->width(25)->height(25)->circular()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('categoria.nombre')
                     ->numeric()

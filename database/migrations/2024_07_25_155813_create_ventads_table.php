@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ventads', function (Blueprint $table) {
             $table->id();
             $table->string('codigo', 50)->nullable();
-            $table->string('producto', 50)->nullable();
+            //  $table->string('producto', 50)->nullable();
             $table->string('cantidad', 50)->nullable();
             $table->string('precio', 50)->nullable();
             $table->string('unidad', 50)->nullable();
@@ -25,7 +25,10 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreignId('idventa')->constrained('venta')
-            ->onDelete('cascade')->onUpdate('cascade')->nullable();
+                ->onDelete('cascade')->onUpdate('cascade')->nullable();
+
+            $table->foreignId('productoid')->constrained('producto')
+                ->onDelete('cascade')->onUpdate('cascade')->nullable();
         });
     }
 

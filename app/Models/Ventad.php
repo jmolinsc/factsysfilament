@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Clusters\Articulos\Resources\ProductoResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,7 +13,7 @@ class Ventad extends Model
 
     protected $fillable = [
         'codigo',
-        'producto',
+        'productoid',
         'precio',
         'cantidad',
         'unidad',
@@ -20,10 +21,15 @@ class Ventad extends Model
         'importe',
         'ivaimp',
         'iva',
-        'idventa',
+        'idventa'
     ];
     public function venta()
     {
         return $this->belongsTo(Venta::class, 'idventa');
+    }
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class, 'productoid');
     }
 }

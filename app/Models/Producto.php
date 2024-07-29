@@ -10,7 +10,6 @@ class Producto extends Model
     use HasFactory;
 
     static $rules = [
-        'codigo' => 'required',
         'producto' => 'required',
         'precio_compra' => 'required',
         'precio_venta' => 'required',
@@ -25,32 +24,39 @@ class Producto extends Model
      * @var array
      */
     protected $fillable = [
-        'codigo',
         'producto',
+        'descripcion',
         'precio_compra',
         'precio_venta',
         'foto',
+        'peso',
+        'unidad',
         'id_categoria',
         'id_fabricante', 'id_familia', 'id_linea'
     ];
 
     public function categoria()
     {
-        return $this->belongsTo(Categoria::class,'id_categoria');
+        return $this->belongsTo(Categoria::class, 'id_categoria');
     }
 
     public function fabricante()
     {
-        return $this->belongsTo(Fabricante::class,'id_fabricante');
+        return $this->belongsTo(Fabricante::class, 'id_fabricante');
     }
 
     public function familia()
     {
-        return $this->belongsTo(Familia::class,'id_familia');
+        return $this->belongsTo(Familia::class, 'id_familia');
     }
 
     public function linea()
     {
-        return $this->belongsTo(Linea::class,'id_linea');
+        return $this->belongsTo(Linea::class, 'id_linea');
+    }
+
+    public function ventads()
+    {
+        return $this->hasMany(Ventad::class, 'productoid');
     }
 }

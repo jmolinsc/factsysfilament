@@ -26,7 +26,7 @@ class VentadResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('codigo')
                     ->maxLength(50),
-                Forms\Components\TextInput::make('producto')
+                Forms\Components\TextInput::make('productoid')
                     ->maxLength(50),
                 Forms\Components\TextInput::make('cantidad')
                     ->maxLength(50),
@@ -54,7 +54,7 @@ class VentadResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('codigo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('producto')
+                Tables\Columns\TextColumn::make('productoid')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cantidad')
                     ->searchable(),

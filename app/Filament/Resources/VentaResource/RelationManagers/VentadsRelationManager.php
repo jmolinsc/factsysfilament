@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\VentaResource\RelationManagers;
 
+use App\Models\Producto;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,17 +21,21 @@ class VentadsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('producto')
+
+                Forms\Components\Select::make('productoid')
+                    ->relationship(
+                        name: 'producto',
+                        titleAttribute: 'producto'
+                    )->preload()->searchable()->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('precio', Producto::find($get('productoid'))->precio_venta);
+                    }),
+                   
+                Forms\Components\TextInput::make('cantidad')
                     ->required()
                     ->maxLength(255),
-                    Forms\Components\TextInput::make('codigo')
-                    ->required()
-                    ->maxLength(255),
-                    Forms\Components\TextInput::make('cantidad')
-                    ->required()
-                    ->maxLength(255),
-                    Forms\Components\TextInput::make('precio')
-                    ->required()
+                Forms\Components\TextInput::make('precio')
+                    ->required()->readOnly(true)
                     ->maxLength(255),
             ]);
     }
@@ -39,8 +46,9 @@ class VentadsRelationManager extends RelationManager
             ->recordTitleAttribute('producto')
             ->recordTitleAttribute('Codigo')
             ->columns([
-                Tables\Columns\TextColumn::make('producto'),
-                Tables\Columns\TextColumn::make('codigo'),
+                Tables\Columns\TextColumn::make('producto.producto'),
+                Tables\Columns\TextColumn::make('producto.descripcion'),
+                
                 Tables\Columns\TextColumn::make('cantidad'),
                 Tables\Columns\TextColumn::make('precio'),
             ])

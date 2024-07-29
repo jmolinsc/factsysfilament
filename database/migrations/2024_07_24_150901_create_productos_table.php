@@ -13,16 +13,19 @@ return new class extends Migration
     {
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo', 50)->nullable();
-            $table->string('producto')->nullable();
+            $table->string('producto', 50)->nullable();
+            $table->string('descripcion')->nullable();
+            $table->string('unidad')->nullable();
+            $table->string('peso')->nullable();
+            $table->string('estatus')->nullable();
+            $table->string('tipo')->nullable();
             $table->decimal('precio_compra', 10, 2)->nullable();
             $table->decimal('precio_venta', 10, 2)->nullable();
-            $table->string('foto', 100)->nullable()->nullable();
+            $table->string('foto', 100)->nullable();
             $table->timestamps();
 
             $table->foreignId('id_categoria')->constrained('categorias')
                 ->onDelete('cascade')->onUpdate('cascade')->nullable();
-
 
             $table->foreignId('id_fabricante')->constrained('fabricantes')
                 ->onDelete('cascade')->onUpdate('cascade')->nullable();

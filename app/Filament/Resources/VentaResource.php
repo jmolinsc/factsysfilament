@@ -48,7 +48,7 @@ class VentaResource extends Resource
                     ->relationship(
                         name: 'alm',
                         titleAttribute: 'nombre'
-                    ),
+                    )->preload()->searchable(),
             ]);
     }
 
