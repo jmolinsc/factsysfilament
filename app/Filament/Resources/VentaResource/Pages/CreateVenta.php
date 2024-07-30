@@ -5,6 +5,8 @@ namespace App\Filament\Resources\VentaResource\Pages;
 use App\Filament\Resources\VentaResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Log;
+use PHPUnit\Event\Application\Started;
 
 class CreateVenta extends CreateRecord
 {
@@ -15,11 +17,13 @@ class CreateVenta extends CreateRecord
         return array_merge(parent::getFormActions(), [
             Actions\Action::make('Afectar')
                 ->action(function () {
-
+                    Log::info('AFECTAD');
                 })
             ],
         );
     }
+
+   
 
 
 

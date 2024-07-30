@@ -8,12 +8,15 @@ use App\Filament\Resources\VentaResource\RelationManagers\VentadsRelationManager
 use App\Models\Venta;
 use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action as ActionsAction;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Artisan;
 
 class VentaResource extends Resource
 {
@@ -55,7 +58,13 @@ class VentaResource extends Resource
                     ->relationship(
                         name: 'alm',
                         titleAttribute: 'nombre'
-                    )->preload()->searchable()
+                    )->preload()->searchable(),
+                Forms\Components\Actions::make([
+                    Forms\Components\Actions\Action::make('Afectar')
+                        ->action(function (Forms\Get $get, Forms\Set $set) {
+                            $set('excerpt', str($get('content'))->words(45, end: ''));
+                        })
+                ]),
 
             ]);
     }
