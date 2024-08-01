@@ -9,4 +9,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCtecategoria extends CreateRecord
 {
     protected static string $resource = CtecategoriaResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
+
+

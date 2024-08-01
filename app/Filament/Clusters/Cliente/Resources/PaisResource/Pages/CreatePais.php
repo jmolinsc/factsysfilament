@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePais extends CreateRecord
 {
     protected static string $resource = PaisResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

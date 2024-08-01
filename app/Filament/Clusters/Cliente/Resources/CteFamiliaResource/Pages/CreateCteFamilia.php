@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCteFamilia extends CreateRecord
 {
     protected static string $resource = CteFamiliaResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

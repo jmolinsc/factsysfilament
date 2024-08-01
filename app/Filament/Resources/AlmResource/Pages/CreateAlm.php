@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAlm extends CreateRecord
 {
     protected static string $resource = AlmResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

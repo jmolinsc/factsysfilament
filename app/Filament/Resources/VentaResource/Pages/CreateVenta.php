@@ -3,41 +3,49 @@
 namespace App\Filament\Resources\VentaResource\Pages;
 
 use App\Filament\Resources\VentaResource;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Modal\Actions\Action;
+use Filament\Pages\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Log;
+
 
 
 class CreateVenta extends CreateRecord
 {
     protected static string $resource = VentaResource::class;
 
-    protected function getFormActions(): array
+
+
+    protected function getRedirectUrl(): string
     {
+        return $this->getResource()::getUrl('index');
+    }
+
+    protected function getActions(): array
+    {
+        /*  return [
+            Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
+               Log::info('PRUEBA');
+               // $this->record->save();
+            }),
+           
+        ]; */
+
         return [
-            $this->getCreateInDraftFormAction(),
-            $this->getCreateAndConfirmFormAction(),
-            $this->getCancelFormAction(),
+            Actions\ActionGroup::make([
+                Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
+                    Log::info('PRUEBA');
+                    // $this->record->save();
+                 }),
+                 Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
+                    Log::info('PRUEBA');
+                    // $this->record->save();
+                 }),
+                 Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
+                    Log::info('PRUEBA');
+                    // $this->record->save();
+                 }),
+            ]),
         ];
-    }
-
-
-
-    protected function getCreateInDraftFormAction(): Action
-    {
-        return Action::make('createindraft')
-        ->label('Save to Draft')
-        ->action(function(){
-            $this->data['status'] = 'draft';
-            $this->create();
-        });
-    }
-
-
-
-    protected function getCreateAndConfirmFormAction(): Action
-    {
-        return Action::make('createandconfirm')
-            ->label('Save and Confirm')
-            ->submit('createandconfirm');
     }
 }

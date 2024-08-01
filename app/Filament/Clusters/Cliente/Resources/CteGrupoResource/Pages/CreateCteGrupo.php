@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCteGrupo extends CreateRecord
 {
     protected static string $resource = CteGrupoResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

@@ -16,4 +16,6 @@ class ListVentas extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+  
 }
