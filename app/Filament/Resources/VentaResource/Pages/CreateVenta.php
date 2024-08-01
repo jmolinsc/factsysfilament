@@ -3,10 +3,9 @@
 namespace App\Filament\Resources\VentaResource\Pages;
 
 use App\Filament\Resources\VentaResource;
-use Filament\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Log;
-use PHPUnit\Event\Application\Started;
+
 
 class CreateVenta extends CreateRecord
 {
@@ -14,18 +13,31 @@ class CreateVenta extends CreateRecord
 
     protected function getFormActions(): array
     {
-        return array_merge(parent::getFormActions(), [
-            Actions\Action::make('Afectar')
-                ->action(function () {
-                    Log::info('AFECTAD');
-                })
-            ],
-        );
+        return [
+            $this->getCreateInDraftFormAction(),
+            $this->getCreateAndConfirmFormAction(),
+            $this->getCancelFormAction(),
+        ];
     }
 
-   
+
+
+    protected function getCreateInDraftFormAction(): Action
+    {
+        return Action::make('createindraft')
+        ->label('Save to Draft')
+        ->action(function(){
+            $this->data['status'] = 'draft';
+            $this->create();
+        });
+    }
 
 
 
-
+    protected function getCreateAndConfirmFormAction(): Action
+    {
+        return Action::make('createandconfirm')
+            ->label('Save and Confirm')
+            ->submit('createandconfirm');
+    }
 }
