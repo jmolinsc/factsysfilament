@@ -5,7 +5,9 @@ namespace App\Filament\Resources\VentaResource\Pages;
 use App\Filament\Resources\VentaResource;
 use App\Models\Venta;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class CreateVenta extends CreateRecord
@@ -24,13 +26,13 @@ class CreateVenta extends CreateRecord
         return [
             Action::make('Send Offer')
                 ->icon('heroicon-o-envelope')
-                ->mutateFormDataUsing(function (array $data): array {
-
-                    dd([$data]);
-                    $this->save();
-                    return $data;
+                ->action(function () {
+                    $data = $this->getRecord();
+                    dd($this->data);
                 })
 
         ];
     }
+
+
 }
