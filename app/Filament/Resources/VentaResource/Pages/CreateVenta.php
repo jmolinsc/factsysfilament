@@ -3,12 +3,10 @@
 namespace App\Filament\Resources\VentaResource\Pages;
 
 use App\Filament\Resources\VentaResource;
-use Filament\Actions\Modal\Actions\Action;
-use Filament\Pages\Actions;
+use App\Models\Venta;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Log;
-
-
+use Illuminate\Http\Request;
 
 class CreateVenta extends CreateRecord
 {
@@ -21,31 +19,18 @@ class CreateVenta extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
-        /*  return [
-            Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
-               Log::info('PRUEBA');
-               // $this->record->save();
-            }),
-           
-        ]; */
-
         return [
-            Actions\ActionGroup::make([
-                Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
-                    Log::info('PRUEBA');
-                    // $this->record->save();
-                 }),
-                 Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
-                    Log::info('PRUEBA');
-                    // $this->record->save();
-                 }),
-                 Action::make('Afectar')->icon('heroicon-s-cog') ->action(function (array $data): void {
-                    Log::info('PRUEBA');
-                    // $this->record->save();
-                 }),
-            ]),
+            Action::make('Send Offer')
+                ->icon('heroicon-o-envelope')
+                ->mutateFormDataUsing(function (array $data): array {
+
+                    dd([$data]);
+                    $this->save();
+                    return $data;
+                })
+
         ];
     }
 }
