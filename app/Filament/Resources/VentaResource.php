@@ -9,6 +9,7 @@ use App\Models\Venta;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as ActionsAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -36,7 +37,10 @@ class VentaResource extends Resource
                     ])->preload()->searchable(),
                 Forms\Components\TextInput::make('movid')
                     ->maxLength(50)->disabled(),
-                Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
+               // Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
+                DatePicker::make('fechaemision')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
                 Forms\Components\Select::make('clienteid')
                     ->relationship(
                         name: 'cte',

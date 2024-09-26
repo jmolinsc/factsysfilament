@@ -9,6 +9,8 @@ class Venta extends Model
 {
     use HasFactory;
 
+   
+
     protected $fillable = [
         'mov',
         'movid',
