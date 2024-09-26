@@ -13,7 +13,37 @@ class ModulosWidget extends BaseWidget
 
         return [
             Stat::make('Venta', 1234)
-            ->descriptionIcon('shopping-cart',IconPosition::Before)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                    'wire:click' => 'venta()'
+                ]),
+            Stat::make('Cxc', 1234)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                    'wire:click' => 'venta()'
+                ]),
+            Stat::make('Cxp', 1234)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                    'wire:click' => 'venta()'
+                ]),
+            Stat::make('Inv', 1234)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                    'wire:click' => 'venta()'
+                ]),
+                Stat::make('Inv', 1234)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                    'wire:click' => 'venta()'
+                ]),
+                Stat::make('Inv', 1234)
+                ->descriptionIcon('shopping-cart', IconPosition::Before)
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                     'wire:click' => 'venta()'

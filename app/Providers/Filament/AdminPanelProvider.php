@@ -57,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('15rem')
             ->authMiddleware([
                 Authenticate::class,
-            ])->topNavigation()->plugin(FilamentProgressbarPlugin::make()->color('#29ba'));
+            ])->topNavigation()
+            ->plugin(FilamentProgressbarPlugin::make()->color('#29ba'));
     }
 }
