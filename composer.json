@@ -12,7 +12,8 @@
         "filament/actions": "^3.2",
         "filament/filament": "3.2.57",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "njxqlus/filament-progressbar": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",

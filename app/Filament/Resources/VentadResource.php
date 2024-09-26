@@ -18,7 +18,7 @@ class VentadResource extends Resource
     protected static ?string $model = Ventad::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationGroup = 'Comercial';
     public static function form(Form $form): Form
     {

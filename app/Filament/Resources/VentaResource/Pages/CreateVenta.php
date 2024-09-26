@@ -29,12 +29,8 @@ class CreateVenta extends CreateRecord
                 ->icon('heroicon-o-envelope')
                 ->action(function () {
                     $data = $this->data;
-                   
-                    //dd($data["fechaemision"]);
-                   // $data["fechaemision"] = Carbon::createFromFormat('Y-m-d', $data["fechaemision"])
-                    //    ->format('d/m/Y');
-                    //dd($data["fechaemision"]);
-                    
+                    $data["mov"]="Ticket";
+
 
                     $this->create();
                 })
