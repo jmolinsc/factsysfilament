@@ -7,6 +7,9 @@ use App\Filament\Clusters\Cliente\Resources\CteResource\Pages;
 use App\Filament\Clusters\Cliente\Resources\CteResource\RelationManagers;
 use App\Models\Cte;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Form;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
@@ -33,67 +36,97 @@ class CteResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('codigo')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('telefono')
-                    ->tel()
-                    ->required()
-                    ->maxLength(30),
-                Forms\Components\TextInput::make('direccion')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('dui')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('nit')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('nrc')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('tipo')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\Select::make('id_ctegrupo')
-                    ->relationship(
-                        name: 'ctegrupo',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('id_ctefamilia')
-                    ->relationship(
-                        name: 'ctefamilia',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
+                Tabs::make('Tabs')
+                    ->tabs([
+                        Tabs\Tab::make('Datos Generales')
+                            ->schema([
+                                Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('codigo')
+                                            ->required()
+                                            ->maxLength(191)->disabledOn('edit')->columnSpan(2),
+                                        Forms\Components\TextInput::make('nombre')->columnSpan(6)
+                                            ->required()
+                                            ->maxLength(191),
+                                        Forms\Components\Select::make('tipo')->label('Tipo')->columnSpan(2)
+                                            ->required()
+                                            ->options([
+                                                'Cliente' => 'Cliente',
+                                                'Empleado' => 'Empleado'
 
-                Forms\Components\Select::make('id_pais')
-                    ->relationship(
-                        name: 'pais',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
+                                            ])->preload()->searchable(),
+                                        Forms\Components\TextInput::make('direccion')
+                                            ->required()
+                                            ->maxLength(191)->columnSpan(8),
 
-                Forms\Components\Select::make('id_departamento')
-                    ->relationship(
-                        name: 'departamento',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('agente.nombre')
-                    ->relationship(
-                        name: 'agente',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('id_ctecategoria')
-                    ->relationship(
-                        name: 'ctecategoria',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
+                                        Forms\Components\TextInput::make('telefono')->columnSpan(2)
+                                            ->tel()
+                                            ->required()
+                                            ->maxLength(30),
+
+                                        Forms\Components\TextInput::make('dui')->columnSpan(2)
+                                            ->maxLength(191),
+                                        Forms\Components\TextInput::make('nit')->columnSpan(2)
+                                            ->maxLength(191),
+                                        Forms\Components\TextInput::make('nrc')->columnSpan(2)
+                                            ->maxLength(191),
+
+                                        Forms\Components\TextInput::make('email')->columnSpan(2)
+                                            ->email()
+                                            ->maxLength(191),
+                                        Forms\Components\Select::make('id_ctegrupo')->label('Grupo')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'ctegrupo',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('id_ctefamilia')->label('Familia')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'ctefamilia',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+
+                                        Forms\Components\Select::make('id_pais')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'pais',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+
+                                        Forms\Components\Select::make('id_departamento')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'departamento',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('agente.nombre')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'agente',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('id_ctecategoria')->columnSpan(2)->label('Categorias')
+                                            ->relationship(
+                                                name: 'ctecategoria',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                    ])->columns(10)
+                            ]),
+                        Tabs\Tab::make('Datos Venta')
+                            ->schema([
+                                Section::make('')
+                                    ->schema([
+                                        Forms\Components\FileUpload::make('foto')->directory('products')
+                                            ->preserveFilenames()
+                                    ])
+                            ]),
+                        Tabs\Tab::make('Regla Negocio')
+                            ->schema([
+                                Section::make('')
+                                    ->schema([
+                                        Forms\Components\FileUpload::make('foto')->directory('products')
+                                            ->preserveFilenames()
+                                    ])
+                            ]),
+                    ])->activeTab(1)->columnSpan(4),
+
+
             ]);
     }
 

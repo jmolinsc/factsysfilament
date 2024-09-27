@@ -50,7 +50,7 @@ class ProductoResource extends Resource
                                     ->schema([
                                         Forms\Components\TextInput::make('producto')->columnSpan(1)
                                             ->required()
-                                            ->maxLength(191),
+                                            ->maxLength(191)->disabledOn('edit'),
                                         Forms\Components\Select::make('tipo')
                                             ->options([
                                                 'Normal' => 'Normal',
@@ -81,7 +81,6 @@ class ProductoResource extends Resource
                                         Forms\Components\TextInput::make('precio_venta')
                                             ->required()
                                             ->numeric(),
-
                                         Forms\Components\Select::make('id_categoria')
                                             ->relationship(
                                                 name: 'categoria',

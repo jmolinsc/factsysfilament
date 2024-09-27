@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('telefono', 30);
             $table->string('direccion');
-            $table->string('dui');
-            $table->string('nit');
-            $table->string('nrc');
-            $table->string('tipo');
-            $table->string('email');
+            $table->string('dui')->nullable();
+            $table->string('nit')->nullable();
+            $table->string('nrc')->nullable();
+            $table->string('tipo')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_ctegrupo')->constrained('ctegrupo')
