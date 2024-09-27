@@ -31,10 +31,19 @@ class Producto extends Model
         'precio_venta',
         'foto',
         'peso',
+        'secompra',
+        'sevende',
+        'seproduce',
+        'proveedor',
+        'cuenta2',
+        'cuenta3',
         'unidad',
         'id_categoria',
-        'id_fabricante', 'id_familia', 'id_linea',
-        'tipo'
+        'id_fabricante',
+        'id_familia',
+        'id_linea',
+        'tipo',
+        'estatus'
     ];
 
     public function categoria()

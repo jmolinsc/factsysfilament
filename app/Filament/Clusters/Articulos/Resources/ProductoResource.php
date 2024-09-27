@@ -8,7 +8,14 @@ use App\Filament\Clusters\Articulos\Resources\ProductoResource\RelationManagers;
 use App\Models\Producto;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
@@ -35,60 +42,122 @@ class ProductoResource extends Resource
         return $form
             ->schema([
 
-                Forms\Components\TextInput::make('producto')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\Select::make('tipo')
-                    ->options([
-                        'Normal' => 'Normal',
-                        'Serie' => 'Serie',
-                        'Activo Fijo' => 'Activo Fijo',
-                    ])->preload()->searchable(),
-                Forms\Components\TextInput::make('descripcion')
-                    ->required()
-                    ->maxLength(50),
-                Forms\Components\Select::make('unidad')
-                    ->options([
-                        'und' => 'und',
-                        'lt' => 'lt',
-                        'lb' => 'lb',
-                    ])->preload()->searchable(),
-                Forms\Components\TextInput::make('peso')
-                    ->required()
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('precio_compra')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('precio_venta')
-                    ->required()
-                    ->numeric(),
+                Tabs::make('Tabs')
+                    ->tabs([
+                        Tabs\Tab::make('Datos Generales')
+                            ->schema([
+                                Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('producto')->columnSpan(1)
+                                            ->required()
+                                            ->maxLength(191),
+                                        Forms\Components\Select::make('tipo')
+                                            ->options([
+                                                'Normal' => 'Normal',
+                                                'Serie' => 'Serie',
+                                                'Activo Fijo' => 'Activo Fijo',
+                                            ])->preload()->searchable(),
+                                        Forms\Components\Select::make('estatus')
+                                            ->options([
+                                                'ALTA' => 'ALTA',
+                                                'BAJA' => 'BAJA'
 
-                Forms\Components\Select::make('id_categoria')
-                    ->relationship(
-                        name: 'categoria',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('id_fabricante')
-                    ->relationship(
-                        name: 'fabricante',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('id_familia')
-                    ->relationship(
-                        name: 'familia',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Select::make('id_linea')
-                    ->relationship(
-                        name: 'linea',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Card::make('')
-                    ->schema([
-                        Forms\Components\FileUpload::make('foto')->directory('products')
-                            ->preserveFilenames()
-                    ]),
+                                            ])->preload()->searchable(),
+                                        Forms\Components\TextInput::make('descripcion')->columnSpan('full')
+                                            ->required()
+                                            ->maxLength(50),
+                                        Forms\Components\Select::make('unidad')
+                                            ->options([
+                                                'und' => 'und',
+                                                'lt' => 'lt',
+                                                'lb' => 'lb',
+                                            ])->preload()->searchable(),
+                                        Forms\Components\TextInput::make('peso')
+                                            ->required()
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('precio_compra')
+                                            ->required()
+                                            ->numeric(),
+                                        Forms\Components\TextInput::make('precio_venta')
+                                            ->required()
+                                            ->numeric(),
 
+                                        Forms\Components\Select::make('id_categoria')
+                                            ->relationship(
+                                                name: 'categoria',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('id_fabricante')
+                                            ->relationship(
+                                                name: 'fabricante',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('id_familia')
+                                            ->relationship(
+                                                name: 'familia',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                        Forms\Components\Select::make('id_linea')
+                                            ->relationship(
+                                                name: 'linea',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+                                    ])
+
+                            ]),
+                        Tabs\Tab::make('Precios')
+                            ->schema([
+                                Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('Precio Lista')->columnSpan(1)
+                                            ->disabled()
+                                            ->maxLength(191),
+                                        Forms\Components\TextInput::make('Precio 2')->columnSpan(1)
+                                            ->disabled()
+                                            ->maxLength(191),
+                                        Forms\Components\TextInput::make('Precio 3')->columnSpan(1)
+                                            ->disabled()
+                                            ->maxLength(191),
+                                    ])
+                            ]),
+
+                        Tabs\Tab::make('Planeacion')
+                            ->schema([
+                                Grid::make(4)
+                                    ->schema([
+                                        Toggle::make('secompra')->label('Se Compra')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+                                        Toggle::make('sevende')->label('Se Vende')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+                                        Toggle::make('seproduce')->label('Se Produce')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
+                                        Forms\Components\TextInput::make('Proveedor')->columnSpan(1)
+                                            ->placeholder('Proveedor')
+                                            ->maxLength(191),
+                                    ]),
+
+                            ]),
+
+                        Tabs\Tab::make('Otros Datos')
+                            ->schema([
+                                Forms\Components\TextInput::make('cuenta2')->label('Cuenta 2')->maxLength(191),
+                                Forms\Components\TextInput::make('cuenta3')->label('Cuenta 3')->maxLength(191),
+                            ])->columnSpan(3),
+
+
+                        Tabs\Tab::make('Documentos')
+                            ->schema([
+                                Section::make('')
+                                    ->schema([
+                                        Forms\Components\FileUpload::make('foto')->directory('products')
+                                            ->preserveFilenames()
+                                    ])
+                            ]),
+
+                    ])->activeTab(1)->columnSpan(3),
             ]);
     }
 

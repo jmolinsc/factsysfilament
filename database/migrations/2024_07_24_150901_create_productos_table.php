@@ -19,9 +19,18 @@ return new class extends Migration
             $table->string('peso')->nullable();
             $table->string('estatus')->nullable();
             $table->string('tipo')->nullable();
+            $table->boolean('secompra')->nullable();
+            $table->boolean('sevende')->nullable();
+            $table->boolean('seproduce')->nullable();
             $table->decimal('precio_compra', 10, 2)->nullable();
+            $table->decimal('preciolista', 10, 2)->nullable();
+            $table->decimal('precio2', 10, 2)->nullable();
+            $table->decimal('precio3', 10, 2)->nullable();
             $table->decimal('precio_venta', 10, 2)->nullable();
             $table->string('foto', 100)->nullable();
+            $table->string('cuenta2')->nullable();
+            $table->string('cuenta3')->nullable();
+            $table->string('proveedor')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_categoria')->constrained('categorias')
