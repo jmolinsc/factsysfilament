@@ -6,14 +6,21 @@ use App\Filament\Resources\VentaResource\Pages;
 use App\Filament\Resources\VentaResource\RelationManagers;
 use App\Filament\Resources\VentaResource\RelationManagers\VentadsRelationManager;
 use App\Models\Cte;
+use App\Models\Producto;
 use App\Models\Venta;
 use Closure;
+
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as ActionsAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
@@ -27,6 +34,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Number;
 
 class VentaResource extends Resource
 {
@@ -100,12 +108,63 @@ class VentaResource extends Resource
                                             )->preload()->searchable(),
 
                                     ])
-                            ])->columns(10)
+                            ])->columns(12)
 
 
                     ])->activeTab(1)->columnSpan(4),
+                Section::make('Detalle Productos')->schema([
+                    Repeater::make('productos')
+                        ->relationship('ventads')
+                        ->schema([
+                            Select::make('productoid')
+                                ->relationship(
+                                    name: 'producto',
+                                    titleAttribute: 'producto'
+                                )->preload()->searchable()->required()->reactive()
+                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(2)
+                                ->afterStateUpdated(function ($state, Get $get, Set $set) {
 
-
+                                    //$set('producto.descripcion', '');
+                                    if ($get('productoid')) {
+                                        $producto = Producto::find($get('productoid'));
+                                        $set('precio', $producto['precio_venta']);
+                                        $set('importe', $producto['precio_venta']);
+                                        $set('descripcion', $producto['descripcion']);
+                                    }
+                                }),
+                            TextInput::make('descripcion')->disabled()->columnSpan(4),
+                            TextInput::make('cantidad')->columnSpan(2)
+                                ->numeric()
+                                ->required()
+                                ->default(1)
+                                ->minValue(1)
+                                ->reactive()
+                                ->afterStateUpdated(
+                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
+                                ),
+                            TextInput::make('precio')->columnSpan(2)
+                                ->numeric()
+                                ->required()
+                                ->disabled(),
+                            TextInput::make('importe')->columnSpan(2)
+                                ->numeric()
+                                ->required()
+                                ->disabled(),
+                        ])->columns(12),
+                    Placeholder::make('Total')
+                        ->label('Importe Total')
+                        ->content(function (Get $get, Set $set) {
+                            $total = 0;
+                            if (!$repeaters = $get('productos')) {
+                                return $total;
+                            }
+                            foreach ($repeaters as $key => $repeater) {
+                                $total += $get("productos.{$key}.importe");
+                            }
+                            return Number::currency($total, 'USD');
+                        }),
+                    Hidden::make('total')->default(0)
+                ])->columnSpan(4),
             ]);
     }
 
@@ -164,7 +223,7 @@ class VentaResource extends Resource
     {
         return [
             //
-            VentadsRelationManager::class
+            // VentadsRelationManager::class
         ];
     }
 

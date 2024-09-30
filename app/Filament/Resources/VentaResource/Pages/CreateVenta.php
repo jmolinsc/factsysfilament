@@ -25,14 +25,13 @@ class CreateVenta extends CreateRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('Send Offer')
+            Action::make('Afectar')
                 ->icon('heroicon-o-envelope')
                 ->action(function () {
                     $data = $this->data;
-                    $data["mov"]="Ticket";
-
-
+                    $data["mov"] = "Ticket";
                     $this->create();
+
                 })
 
         ];
