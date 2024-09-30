@@ -18,7 +18,7 @@ class AlmResource extends Resource
 
     protected static ?string $navigationGroup = 'Cuentas';
 
-    protected static bool $shouldRegisterNavigation = false;
+   // protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {

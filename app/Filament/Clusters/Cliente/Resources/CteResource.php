@@ -45,9 +45,14 @@ class CteResource extends Resource
                                         Forms\Components\TextInput::make('codigo')
                                             ->required()
                                             ->maxLength(191)->disabledOn('edit')->columnSpan(2),
-                                        Forms\Components\TextInput::make('nombre')->columnSpan(6)
+                                        Forms\Components\TextInput::make('nombre')->columnSpan(4)
                                             ->required()
                                             ->maxLength(191),
+                                            Forms\Components\Select::make('id_ctegrupo')->label('Grupo')->columnSpan(2)
+                                            ->relationship(
+                                                name: 'ctegrupo',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
                                         Forms\Components\Select::make('tipo')->label('Tipo')->columnSpan(2)
                                             ->required()
                                             ->options([
@@ -74,11 +79,7 @@ class CteResource extends Resource
                                         Forms\Components\TextInput::make('email')->columnSpan(2)
                                             ->email()
                                             ->maxLength(191),
-                                        Forms\Components\Select::make('id_ctegrupo')->label('Grupo')->columnSpan(2)
-                                            ->relationship(
-                                                name: 'ctegrupo',
-                                                titleAttribute: 'nombre'
-                                            )->preload()->searchable(),
+                                    
                                         Forms\Components\Select::make('id_ctefamilia')->label('Familia')->columnSpan(2)
                                             ->relationship(
                                                 name: 'ctefamilia',

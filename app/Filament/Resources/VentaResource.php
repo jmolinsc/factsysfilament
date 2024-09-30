@@ -5,12 +5,21 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\VentaResource\Pages;
 use App\Filament\Resources\VentaResource\RelationManagers;
 use App\Filament\Resources\VentaResource\RelationManagers\VentadsRelationManager;
+use App\Models\Cte;
 use App\Models\Venta;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action as ActionsAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,46 +39,72 @@ class VentaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('mov')
-                    ->options([
-                        'Factura' => 'Factura',
-                        'Credito FIscal' => 'Credito FIscal',
-                        'Ticket' => 'Ticket',
-                    ])->preload()->searchable(),
-                Forms\Components\TextInput::make('movid')
-                    ->maxLength(50)->disabled(),
-               // Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
-                DatePicker::make('fechaemision')
-                    ->native(false)
-                    ->displayFormat('d/m/Y'),
-                Forms\Components\Select::make('clienteid')
-                    ->relationship(
-                        name: 'cte',
-                        titleAttribute: 'codigo'
-                    )->preload()->searchable(),
-                Forms\Components\TextInput::make('sucursal')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('referencia')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('concepto')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('descuentoglobal')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('condicion')
-                    ->maxLength(50),
-                Forms\Components\TextInput::make('comentarios')
-                    ->maxLength(50),
-                Forms\Components\Select::make('id_alm')
-                    ->relationship(
-                        name: 'alm',
-                        titleAttribute: 'nombre'
-                    )->preload()->searchable(),
-                Forms\Components\Actions::make([
-                    Forms\Components\Actions\Action::make('Afectar')
-                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                            $set('excerpt', str($get('content'))->words(45, end: ''));
-                        })
-                ]),
+                Tabs::make('Tabs')
+                    ->tabs([
+                        Tab::make('Datos Generales')
+                            ->schema([
+                                Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\Select::make('mov')
+                                            ->options([
+                                                'Factura' => 'Factura',
+                                                'Credito FIscal' => 'Credito FIscal',
+                                                'Ticket' => 'Ticket',
+                                            ])->preload()->searchable()->columnSpan(1),
+                                        Forms\Components\TextInput::make('movid')->columnSpan(1)
+                                            ->maxLength(50)->disabled(),
+                                        // Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
+                                        DatePicker::make('fechaemision')
+                                            ->native(false)
+                                            ->displayFormat('d/m/Y')->columnSpan(1),
+                                        Forms\Components\Select::make('clienteid')
+                                            ->relationship(
+                                                name: 'cte',
+                                                titleAttribute: 'codigo'
+                                            )->preload()
+                                            ->searchable()
+                                            ->live()
+                                            ->afterStateUpdated(function (Get $get, Set $set) {
+
+                                                if ($get('clienteid')) {
+                                                    $cte = Cte::find($get('clienteid'));
+                                                    $set('nombre', $cte['nombre']);
+                                                }
+                                            })
+                                            ->columnSpan(1),
+                                        TextInput::make('nombre')
+                                            ->reactive()
+                                            ->afterStateUpdated(function (Closure $set, $state) {
+                                                dd($state);
+                                                if ($state('clienteid')) {
+                                                    $cte = Cte::find($state('clienteid'));
+                                                    $set('nombre', $cte['nombre']);
+                                                }
+                                            }),
+                                        Forms\Components\TextInput::make('sucursal')
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('referencia')
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('concepto')
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('descuentoglobal')
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('condicion')
+                                            ->maxLength(50),
+                                        Forms\Components\TextInput::make('comentarios')
+                                            ->maxLength(50),
+                                        Forms\Components\Select::make('id_alm')
+                                            ->relationship(
+                                                name: 'alm',
+                                                titleAttribute: 'nombre'
+                                            )->preload()->searchable(),
+
+                                    ])
+                            ])->columns(10)
+
+
+                    ])->activeTab(1)->columnSpan(4),
+
 
             ]);
     }
@@ -84,7 +119,9 @@ class VentaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fechaemision')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('cliente')
+                Tables\Columns\TextColumn::make('cte.codigo')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('cte.nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sucursal')
                     ->searchable(),
