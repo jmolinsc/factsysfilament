@@ -113,14 +113,14 @@ class VentaResource extends Resource
                     ])->activeTab(1)->columnSpan(4),
                 Section::make('Detalle Productos')->schema([
                     Repeater::make('productos')
-                        ->relationship('ventads')
+                        ->relationship('ventads')->label('Producto')
                         ->schema([
                             Select::make('productoid')
                                 ->relationship(
                                     name: 'producto',
                                     titleAttribute: 'producto'
                                 )->preload()->searchable()->required()->reactive()
-                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(2)
+                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)
                                 ->afterStateUpdated(function ($state, Get $get, Set $set) {
 
                                     //$set('producto.descripcion', '');
@@ -138,41 +138,74 @@ class VentaResource extends Resource
                                     TextInput::make('descripcion')
                                         ->label('Descripcion')
 
-                                ])->columnSpan(3),
-                            TextInput::make('cantidad')->columnSpan(1)
+                                ])->columnSpan(5),
+                            TextInput::make('cantidad')->columnSpan(2)
                                 ->numeric()
                                 ->required()
                                 ->default(1)
                                 ->minValue(1)
                                 ->reactive()
+                                ->live()
+                                ->afterStateUpdated(
+                                    fn($state, Set $set, Get $get) => $set('importe',   $set('importe', $state * $get('precio')))
+                                ),
+                            TextInput::make('unidad')->columnSpan(2),
+                            TextInput::make('precio')->columnSpan(3)
+                                ->live()
+                                ->afterStateUpdated(
+                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('cantidad'))
+
+                                )
+                                ->numeric()->prefix('$'),
+                            TextInput::make('importe')->columnSpan(3)
+                                ->numeric()
+                                ->readOnly()
+                                ->prefix('$')
+                                ->live(true)
                                 ->afterStateUpdated(
                                     fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
                                 ),
-                            TextInput::make('unidad')->columnSpan(1),
-                            TextInput::make('precio')->columnSpan(1)
+                            TextInput::make('iva')->columnSpan(2)
+                                ->suffix('%')
                                 ->numeric(),
-                            TextInput::make('importe')->columnSpan(2)
-                                ->numeric()
-                                ->disabled(),
-                            TextInput::make('iva')->columnSpan(1)
+                            TextInput::make('ivaimp')->columnSpan(3)
                                 ->numeric(),
-                            TextInput::make('ivaimp')->columnSpan(1)
+                            Hidden::make('total')->default(0)
+                        ])
+                        // Repeatable field is live so that it will trigger the state update on each change
+                        ->live()
+                        ->reactive()
+                        // After adding a new row, we need to update the totals
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            self::updateTotals($get, $set);
+                        })->columns(24),
+                    Group::make()
+                        ->columns(1)
+                        ->maxWidth('1/2')
+                        ->schema([
+                            Forms\Components\TextInput::make('subtotal')->columnSpan(4)
                                 ->numeric()
-                        ])->columns(12),
-                    Placeholder::make('Total')
-                        ->label('Importe Total')
-                        ->content(function (Get $get, Set $set) {
-                            $total = 0;
-                            if (!$repeaters = $get('productos')) {
-                                return $total;
-                            }
-                            foreach ($repeaters as $key => $repeater) {
-                                $total += $get("productos.{$key}.importe");
-                            }
-                            return Number::currency($total, 'USD');
-                        }),
-                    Hidden::make('total')->default(0)
+                                // Read-only, because it's calculated
+                                ->readOnly()
+                                ->prefix('$'),
+
+                            Forms\Components\TextInput::make('impuestos')->columnSpan(4)
+                                ->prefix('$')
+                                ->default(20)
+                                // Live field, as we need to re-calculate the total on each change
+                                ->live(true)
+                                // This enables us to display the subtotal on the edit page load
+                                ->afterStateUpdated(function (Get $get, Set $set) {
+                                    self::updateTotals($get, $set);
+                                }),
+                            Forms\Components\TextInput::make('total')->columnSpan(4)
+                                ->numeric()
+                                // Read-only, because it's calculated
+                                ->readOnly()
+                                ->prefix('$')
+                        ])->columns(24)
                 ])->columnSpan(4),
+
             ]);
     }
 
@@ -242,5 +275,24 @@ class VentaResource extends Resource
             'create' => Pages\CreateVenta::route('/create'),
             'edit' => Pages\EditVenta::route('/{record}/edit'),
         ];
+    }
+
+    // This function updates totals based on the selected products and quantities
+    public static function updateTotals(Get $get, Set $set)
+    {
+
+        // Retrieve all selected products and remove empty rows
+        $selectedProducts = collect($get('productos'))->filter(fn($item) => !empty($item['productoid']) && !empty($item['cantidad']));
+        // Retrieve prices for all selected products
+        //$prices = Producto::find($selectedProducts->pluck('productoid'))->pluck('precio_venta', 'id');
+        $prices = $selectedProducts->pluck('precio', 'id');
+        // Calculate subtotal based on the selected products and quantities
+        $subtotal = $selectedProducts->reduce(function ($subtotal, $product) use ($prices) {
+            return $subtotal + ($prices[$product['id']] * $product['cantidad']);
+        }, 0);
+
+        // Update the state with the new values
+        $set('subtotal', number_format($subtotal, 2, '.', ''));
+        $set('total', number_format($subtotal + ($subtotal * ($get('iva') / 100)), 2, '.', ''));
     }
 }
