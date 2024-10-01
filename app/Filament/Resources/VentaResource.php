@@ -40,7 +40,7 @@ use Filament\Forms\Components\Group;
 class VentaResource extends Resource
 {
     protected static ?string $model = Venta::class;
-
+    public $importe;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Comercial';
 
@@ -122,7 +122,6 @@ class VentaResource extends Resource
                                 )->preload()->searchable()->required()->reactive()
                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)
                                 ->afterStateUpdated(function ($state, Get $get, Set $set) {
-
                                     //$set('producto.descripcion', '');
                                     if ($get('productoid')) {
                                         $producto = Producto::find($get('productoid'));
@@ -280,7 +279,6 @@ class VentaResource extends Resource
     // This function updates totals based on the selected products and quantities
     public static function updateTotals(Get $get, Set $set)
     {
-
         // Retrieve all selected products and remove empty rows
         $selectedProducts = collect($get('productos'))->filter(fn($item) => !empty($item['productoid']) && !empty($item['cantidad']));
         // Retrieve prices for all selected products
