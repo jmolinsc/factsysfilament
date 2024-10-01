@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Number;
+use Filament\Forms\Components\Group;
 
 class VentaResource extends Resource
 {
@@ -132,8 +133,15 @@ class VentaResource extends Resource
                                         $set('descripcion', $producto['descripcion']);
                                     }
                                 }),
-                            TextInput::make('descripcion')->disabled()->columnSpan(4),
-                            TextInput::make('cantidad')->columnSpan(2)
+                            // TextInput::make('producto.descripcion')->disabled()->columnSpan(4),
+                            Group::make()
+                                ->relationship('producto')
+                                ->schema([
+                                    TextInput::make('descripcion')
+                                        ->label('Descripcion')
+
+                                ])->columnSpan(3),
+                            TextInput::make('cantidad')->columnSpan(1)
                                 ->numeric()
                                 ->required()
                                 ->default(1)
@@ -142,14 +150,26 @@ class VentaResource extends Resource
                                 ->afterStateUpdated(
                                     fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
                                 ),
-                            TextInput::make('precio')->columnSpan(2)
+                            TextInput::make('unidad')->columnSpan(1)
                                 ->numeric()
                                 ->required()
+                                ->reactive()
+                                ->afterStateUpdated(
+                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
+                                ),
+
+                            TextInput::make('precio')->columnSpan(2)
+                                ->numeric()
                                 ->disabled(),
                             TextInput::make('importe')->columnSpan(2)
                                 ->numeric()
-                                ->required()
                                 ->disabled(),
+                            TextInput::make('iva')->columnSpan(1)
+                                ->numeric()
+                                ->reactive()
+                                ->afterStateUpdated(
+                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
+                                )
                         ])->columns(12),
                     Placeholder::make('Total')
                         ->label('Importe Total')
