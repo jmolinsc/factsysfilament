@@ -81,15 +81,13 @@ class VentaResource extends Resource
                                                 }
                                             })
                                             ->columnSpan(1),
-                                        TextInput::make('nombre')
-                                            ->reactive()
-                                            ->afterStateUpdated(function (Closure $set, $state) {
-                                                dd($state);
-                                                if ($state('clienteid')) {
-                                                    $cte = Cte::find($state('clienteid'));
-                                                    $set('nombre', $cte['nombre']);
-                                                }
-                                            }),
+                                        Group::make()
+                                            ->relationship('cte')
+                                            ->schema([
+                                                TextInput::make('nombre')
+                                                    ->label('Nombre')
+
+                                            ])->columnSpan(3),
                                         Forms\Components\TextInput::make('sucursal')
                                             ->maxLength(50),
                                         Forms\Components\TextInput::make('referencia')
@@ -150,26 +148,16 @@ class VentaResource extends Resource
                                 ->afterStateUpdated(
                                     fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
                                 ),
-                            TextInput::make('unidad')->columnSpan(1)
-                                ->numeric()
-                                ->required()
-                                ->reactive()
-                                ->afterStateUpdated(
-                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
-                                ),
-
-                            TextInput::make('precio')->columnSpan(2)
-                                ->numeric()
-                                ->disabled(),
+                            TextInput::make('unidad')->columnSpan(1),
+                            TextInput::make('precio')->columnSpan(1)
+                                ->numeric(),
                             TextInput::make('importe')->columnSpan(2)
                                 ->numeric()
                                 ->disabled(),
                             TextInput::make('iva')->columnSpan(1)
+                                ->numeric(),
+                            TextInput::make('ivaimp')->columnSpan(1)
                                 ->numeric()
-                                ->reactive()
-                                ->afterStateUpdated(
-                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
-                                )
                         ])->columns(12),
                     Placeholder::make('Total')
                         ->label('Importe Total')
