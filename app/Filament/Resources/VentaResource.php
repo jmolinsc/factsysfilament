@@ -119,15 +119,15 @@ class VentaResource extends Resource
                                 ->relationship(
                                     name: 'producto',
                                     titleAttribute: 'producto'
-                                )->preload()->searchable()->required()->reactive()
+                                )->preload()->searchable()->required()->reactive()->live()
                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)
                                 ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                    //$set('producto.descripcion', '');
+                                    dd($state);
                                     if ($get('productoid')) {
                                         $producto = Producto::find($get('productoid'));
                                         $set('precio', $producto['precio_venta']);
                                         $set('importe', $producto['precio_venta']);
-                                        $set('descripcion', $producto['descripcion']);
+                                        $set('producto.descripcion', $producto['descripcion']);
                                     }
                                 }),
                             // TextInput::make('producto.descripcion')->disabled()->columnSpan(4),
@@ -172,10 +172,10 @@ class VentaResource extends Resource
                             Hidden::make('total')->default(0)
                         ])
                         // Repeatable field is live so that it will trigger the state update on each change
-                        ->live()
                         ->reactive()
                         // After adding a new row, we need to update the totals
                         ->afterStateUpdated(function (Get $get, Set $set) {
+                            dump($get('productoid'));
                             self::updateTotals($get, $set);
                         })->columns(24),
                     Group::make()
@@ -284,6 +284,7 @@ class VentaResource extends Resource
         // Retrieve prices for all selected products
         //$prices = Producto::find($selectedProducts->pluck('productoid'))->pluck('precio_venta', 'id');
         $prices = $selectedProducts->pluck('precio', 'id');
+        dump($prices);
         // Calculate subtotal based on the selected products and quantities
         $subtotal = $selectedProducts->reduce(function ($subtotal, $product) use ($prices) {
             return $subtotal + ($prices[$product['id']] * $product['cantidad']);
