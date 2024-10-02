@@ -122,12 +122,12 @@ class VentaResource extends Resource
                                 )->preload()->searchable()->required()->reactive()->live()
                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)
                                 ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                    dd($state);
                                     if ($get('productoid')) {
                                         $producto = Producto::find($get('productoid'));
-                                        $set('precio', $producto['precio_venta']);
-                                        $set('importe', $producto['precio_venta']);
+                                        $set('precio', $producto['preciolista']);
+                                        $set('importe', $producto['preciolista']);
                                         $set('producto.descripcion', $producto['descripcion']);
+                                        
                                     }
                                 }),
                             // TextInput::make('producto.descripcion')->disabled()->columnSpan(4),
@@ -173,11 +173,12 @@ class VentaResource extends Resource
                         ])
                         // Repeatable field is live so that it will trigger the state update on each change
                         ->reactive()
+                        ->live(true)
                         // After adding a new row, we need to update the totals
-                        ->afterStateUpdated(function (Get $get, Set $set) {
-                            dump($get('productoid'));
+                        /*->afterStateUpdated(function ($state, Get $get, Set $set) {
                             self::updateTotals($get, $set);
-                        })->columns(24),
+                        })*/
+                        ->columns(24),
                     Group::make()
                         ->columns(1)
                         ->maxWidth('1/2')
@@ -279,12 +280,12 @@ class VentaResource extends Resource
     // This function updates totals based on the selected products and quantities
     public static function updateTotals(Get $get, Set $set)
     {
+        //$productos=$get('productos');
         // Retrieve all selected products and remove empty rows
         $selectedProducts = collect($get('productos'))->filter(fn($item) => !empty($item['productoid']) && !empty($item['cantidad']));
         // Retrieve prices for all selected products
         //$prices = Producto::find($selectedProducts->pluck('productoid'))->pluck('precio_venta', 'id');
         $prices = $selectedProducts->pluck('precio', 'id');
-        dump($prices);
         // Calculate subtotal based on the selected products and quantities
         $subtotal = $selectedProducts->reduce(function ($subtotal, $product) use ($prices) {
             return $subtotal + ($prices[$product['id']] * $product['cantidad']);
