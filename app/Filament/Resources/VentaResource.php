@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Number;
 use Filament\Forms\Components\Group;
+use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 
 class VentaResource extends Resource
 {
@@ -62,7 +63,7 @@ class VentaResource extends Resource
                                             ])->preload()->searchable()->columnSpan(1),
                                         Forms\Components\TextInput::make('movid')->columnSpan(1)
                                             ->maxLength(50)->disabled(),
-                                        // Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
+                                        //Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
                                         DatePicker::make('fechaemision')
                                             ->native(false)
                                             ->displayFormat('d/m/Y')->columnSpan(1),
@@ -119,38 +120,37 @@ class VentaResource extends Resource
                                 ->relationship(
                                     name: 'producto',
                                     titleAttribute: 'producto'
-                                )->preload()->searchable()->required()->reactive()->live()
+                                )->preload()->searchable()->required()->reactive()
+                                ->distinct()
                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()->columnSpan(4)
+                                //->afterStateUpdated(fn($state, Get $get, Set $set) => $set('precio', Producto::find($state)->preciolista ?? 0)),
                                 ->afterStateUpdated(function ($state, Get $get, Set $set) {
                                     if ($get('productoid')) {
                                         $producto = Producto::find($get('productoid'));
                                         $set('precio', $producto['preciolista']);
                                         $set('importe', $producto['preciolista']);
                                         $set('producto.descripcion', $producto['descripcion']);
-                                        
                                     }
                                 }),
-                            // TextInput::make('producto.descripcion')->disabled()->columnSpan(4),
                             Group::make()
                                 ->relationship('producto')
                                 ->schema([
                                     TextInput::make('descripcion')
                                         ->label('Descripcion')
-
                                 ])->columnSpan(5),
                             TextInput::make('cantidad')->columnSpan(2)
                                 ->numeric()
                                 ->required()
                                 ->default(1)
                                 ->minValue(1)
+                                ->dehydrated()
                                 ->reactive()
                                 ->live()
-                                ->afterStateUpdated(
-                                    fn($state, Set $set, Get $get) => $set('importe',   $set('importe', $state * $get('precio')))
-                                ),
+                                ->afterStateUpdated(fn($state, Set $set, Get $get) => $set('importe',   $state * $get('precio'))),
                             TextInput::make('unidad')->columnSpan(2),
                             TextInput::make('precio')->columnSpan(3)
                                 ->live()
+                                ->dehydrated()
                                 ->afterStateUpdated(
                                     fn($state, Set $set, Get $get) => $set('importe', $state * $get('cantidad'))
 
@@ -158,52 +158,56 @@ class VentaResource extends Resource
                                 ->numeric()->prefix('$'),
                             TextInput::make('importe')->columnSpan(3)
                                 ->numeric()
-                                ->readOnly()
                                 ->prefix('$')
-                                ->live(true)
-                                ->afterStateUpdated(
-                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('precio'))
-                                ),
+                                ->dehydrated(),
                             TextInput::make('iva')->columnSpan(2)
                                 ->suffix('%')
                                 ->numeric(),
                             TextInput::make('ivaimp')->columnSpan(3)
                                 ->numeric(),
-                            Hidden::make('total')->default(0)
-                        ])
-                        // Repeatable field is live so that it will trigger the state update on each change
-                        ->reactive()
-                        ->live(true)
-                        // After adding a new row, we need to update the totals
-                        /*->afterStateUpdated(function ($state, Get $get, Set $set) {
-                            self::updateTotals($get, $set);
-                        })*/
-                        ->columns(24),
-                    Group::make()
-                        ->columns(1)
-                        ->maxWidth('1/2')
-                        ->schema([
-                            Forms\Components\TextInput::make('subtotal')->columnSpan(4)
-                                ->numeric()
-                                // Read-only, because it's calculated
-                                ->readOnly()
-                                ->prefix('$'),
+                            //Hidden::make('total')->default(0)
+                        ])->columns(24),
+                    Section::make('Detalle Productos')->schema([
+                        Group::make()
+                            ->schema([
+                                PlaceHolder::make('importetotal')
+                                    ->label('Sub Total')
+                                    ->content(function (Get $get, Set $set) {
+                                        $total = 0;
+                                        if (!$repeaters = $get('productos')) {
+                                            return $total;
+                                        }
+                                        foreach ($repeaters as $key => $repeater) {
+                                            $total += $get("productos.{$key}.importe");
+                                        }
+                                        // dump($total);
+                                        $set('importetotal', $total);
+                                        //dump($get('importetotal'));
+                                        return Number::currency($total, 'USD');
+                                    })
+                            ])->columnSpan(5),
+                        Group::make()
+                            ->schema([
+                                PlaceHolder::make('impuestos')
+                                    ->label('Impuestos')
+                                    ->content(function (Get $get, Set $set) {
+                                        $total = 0;
+                                        if (!$repeaters = $get('productos')) {
+                                            return $total;
+                                        }
+                                        foreach ($repeaters as $key => $repeater) {
 
-                            Forms\Components\TextInput::make('impuestos')->columnSpan(4)
-                                ->prefix('$')
-                                ->default(20)
-                                // Live field, as we need to re-calculate the total on each change
-                                ->live(true)
-                                // This enables us to display the subtotal on the edit page load
-                                ->afterStateUpdated(function (Get $get, Set $set) {
-                                    self::updateTotals($get, $set);
-                                }),
-                            Forms\Components\TextInput::make('total')->columnSpan(4)
-                                ->numeric()
-                                // Read-only, because it's calculated
-                                ->readOnly()
-                                ->prefix('$')
-                        ])->columns(24)
+                                            $total += $get("productos.{$key}.importe");
+                                        }
+                                        // dump($total);
+                                        $set('importetotal', $total);
+                                        //dump($get('importetotal'));
+                                        return Number::currency($total, 'USD');
+                                    })->columns(2),
+                                Hidden::make('importetotal')->default(0)
+                            ])
+
+                    ]),
                 ])->columnSpan(4),
 
             ]);
@@ -280,9 +284,12 @@ class VentaResource extends Resource
     // This function updates totals based on the selected products and quantities
     public static function updateTotals(Get $get, Set $set)
     {
-        //$productos=$get('productos');
+
+
+        /*  //$productos=$get('productos');
         // Retrieve all selected products and remove empty rows
         $selectedProducts = collect($get('productos'))->filter(fn($item) => !empty($item['productoid']) && !empty($item['cantidad']));
+        dump($selectedProducts);
         // Retrieve prices for all selected products
         //$prices = Producto::find($selectedProducts->pluck('productoid'))->pluck('precio_venta', 'id');
         $prices = $selectedProducts->pluck('precio', 'id');
@@ -294,5 +301,6 @@ class VentaResource extends Resource
         // Update the state with the new values
         $set('subtotal', number_format($subtotal, 2, '.', ''));
         $set('total', number_format($subtotal + ($subtotal * ($get('iva') / 100)), 2, '.', ''));
+        */
     }
 }
