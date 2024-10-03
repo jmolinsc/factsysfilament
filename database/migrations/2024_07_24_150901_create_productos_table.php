@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('cuenta2')->nullable();
             $table->string('cuenta3')->nullable();
             $table->string('proveedor')->nullable();
+            $table->string('iva')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_categoria')->constrained('categorias')

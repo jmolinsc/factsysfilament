@@ -130,6 +130,8 @@ class VentaResource extends Resource
                                         $set('precio', $producto['preciolista']);
                                         $set('importe', $producto['preciolista']);
                                         $set('producto.descripcion', $producto['descripcion']);
+                                        $set('producto.iva', $producto['iva']);
+                                        $set('ivaimp', Number::currency(($producto['preciolista'] *  1) * ($producto['iva'] / 100)),'');
                                     }
                                 }),
                             Group::make()
@@ -147,67 +149,94 @@ class VentaResource extends Resource
                                 ->reactive()
                                 ->live()
                                 ->afterStateUpdated(fn($state, Set $set, Get $get) => $set('importe',   $state * $get('precio'))),
-                            TextInput::make('unidad')->columnSpan(2),
-                            TextInput::make('precio')->columnSpan(3)
+                            //TextInput::make('unidad')->columnSpan(2),
+                            Select::make('unidad')
+                                ->options([
+                                    'und' => 'und',
+                                    'lt' => 'lt',
+                                    'lb' => 'lb',
+                                ])->preload()->searchable()->columnSpan(3),
+                            TextInput::make('precio')->columnSpan(2)
                                 ->live()
+                                ->label('Precio $')
                                 ->dehydrated()
                                 ->afterStateUpdated(
                                     fn($state, Set $set, Get $get) => $set('importe', $state * $get('cantidad'))
 
                                 )
-                                ->numeric()->prefix('$'),
+                                ->numeric(),
                             TextInput::make('importe')->columnSpan(3)
-                                ->numeric()
-                                ->prefix('$')
+                                ->readOnly()
+                                ->label('Importe $')
                                 ->dehydrated(),
-                            TextInput::make('iva')->columnSpan(2)
-                                ->suffix('%')
-                                ->numeric(),
-                            TextInput::make('ivaimp')->columnSpan(3)
-                                ->numeric(),
+                            Group::make()
+                                ->relationship('producto')
+                                ->schema([
+                                    TextInput::make('iva')
+                                        ->label('IVA %')->readOnly()
+                                ])->columnSpan(2),
+                            TextInput::make('ivaimp')->label('Iva Imp.')->columnSpan(3)->readOnly()
+
                             //Hidden::make('total')->default(0)
                         ])->columns(24),
-                    Section::make('Detalle Productos')->schema([
-                        Group::make()
-                            ->schema([
-                                PlaceHolder::make('importetotal')
-                                    ->label('Sub Total')
-                                    ->content(function (Get $get, Set $set) {
-                                        $total = 0;
-                                        if (!$repeaters = $get('productos')) {
-                                            return $total;
-                                        }
-                                        foreach ($repeaters as $key => $repeater) {
-                                            $total += $get("productos.{$key}.importe");
-                                        }
-                                        // dump($total);
-                                        $set('importetotal', $total);
-                                        //dump($get('importetotal'));
-                                        return Number::currency($total, 'USD');
-                                    })
-                            ])->columnSpan(5),
-                        Group::make()
-                            ->schema([
-                                PlaceHolder::make('impuestos')
-                                    ->label('Impuestos')
-                                    ->content(function (Get $get, Set $set) {
-                                        $total = 0;
-                                        if (!$repeaters = $get('productos')) {
-                                            return $total;
-                                        }
-                                        foreach ($repeaters as $key => $repeater) {
 
-                                            $total += $get("productos.{$key}.importe");
-                                        }
-                                        // dump($total);
-                                        $set('importetotal', $total);
-                                        //dump($get('importetotal'));
-                                        return Number::currency($total, 'USD');
-                                    })->columns(2),
-                                Hidden::make('importetotal')->default(0)
-                            ])
+                    Group::make()
+                        ->schema([
+                            PlaceHolder::make('importetotal')->columnSpan(2)
+                                ->label('Sub Total')
+                                ->content(function (Get $get, Set $set) {
+                                    $total = 0;
+                                    if (!$repeaters = $get('productos')) {
+                                        return $total;
+                                    }
+                                    foreach ($repeaters as $key => $repeater) {
 
-                    ]),
+                                        //$total += $get("productos.{$key}.importe");
+                                    }
+
+                                    //dump($get('importetotal'));
+                                    return Number::currency($total, 'USD');
+                                }),
+                            PlaceHolder::make('impuestos')->columnSpan(2)
+                                ->label('Impuestos')
+                                ->content(function (Get $get, Set $set) {
+                                    $total = 0;
+                                    if (!$repeaters = $get('productos')) {
+                                        return $total;
+                                    }
+                                    foreach ($repeaters as $key => $repeater) {
+
+                                       // $total += $get("productos.{$key}.ivaimp");
+                                    }
+
+                                    //dump($get('importetotal'));
+                                    return Number::currency($total, 'USD');
+                                })->columns(2),
+                            PlaceHolder::make('total')->columnSpan(2)
+                                ->label('Total')
+                                ->content(function (Get $get, Set $set) {
+                                    $total = 0;
+                                    $ivaimp = 0;
+                                    if (!$repeaters = $get('productos')) {
+                                        return $total;
+                                    }
+                                    foreach ($repeaters as $key => $repeater) {
+
+                                      //  $total += $get("productos.{$key}.importe");
+                                        //$ivaimp += $get("productos.{$key}.ivaimp");
+                                    }
+
+                                    //dump($get('importetotal'));
+                                    return Number::currency($total, 'USD');
+                                })->columns(2),
+                            Hidden::make('importetotal')->default(0),
+                            Hidden::make('impuestos')->default(0),
+                            Hidden::make('total')->default(0)
+
+                        ])->columns(24)
+
+
+
                 ])->columnSpan(4),
 
             ]);
@@ -282,25 +311,21 @@ class VentaResource extends Resource
     }
 
     // This function updates totals based on the selected products and quantities
-    public static function updateTotals(Get $get, Set $set)
+    public static function sumColumn(Get $get, Set $set)
     {
 
-
-        /*  //$productos=$get('productos');
-        // Retrieve all selected products and remove empty rows
-        $selectedProducts = collect($get('productos'))->filter(fn($item) => !empty($item['productoid']) && !empty($item['cantidad']));
-        dump($selectedProducts);
-        // Retrieve prices for all selected products
-        //$prices = Producto::find($selectedProducts->pluck('productoid'))->pluck('precio_venta', 'id');
-        $prices = $selectedProducts->pluck('precio', 'id');
-        // Calculate subtotal based on the selected products and quantities
-        $subtotal = $selectedProducts->reduce(function ($subtotal, $product) use ($prices) {
-            return $subtotal + ($prices[$product['id']] * $product['cantidad']);
-        }, 0);
-
-        // Update the state with the new values
-        $set('subtotal', number_format($subtotal, 2, '.', ''));
-        $set('total', number_format($subtotal + ($subtotal * ($get('iva') / 100)), 2, '.', ''));
-        */
+        $importe = 0;
+        $ivaimp = 0;
+        $total = 0;
+        if (!$repeaters = $get('productos')) {
+            return $importe;
+        }
+        foreach ($repeaters as $key => $repeater) {
+            $importe += $get("productos.{$key}.importe");
+            $ivaimp += $get("productos.{$key}.ivaimp");
+            $total = $importe + $ivaimp;
+        }
+        //$importe = Number::currency($importe, 'USD');
+        return [$importe, $ivaimp, $total];
     }
 }

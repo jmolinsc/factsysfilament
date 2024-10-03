@@ -66,6 +66,9 @@ class ProductoResource extends Resource
                                         Forms\Components\TextInput::make('descripcion')->columnSpan('full')
                                             ->required()
                                             ->maxLength(50),
+                                            Forms\Components\TextInput::make('iva')->prefix('%')
+                                            ->required()
+                                            ->maxLength(50),
                                         Forms\Components\Select::make('unidad')
                                             ->options([
                                                 'und' => 'und',

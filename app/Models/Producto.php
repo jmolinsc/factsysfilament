@@ -43,7 +43,8 @@ class Producto extends Model
         'id_familia',
         'id_linea',
         'tipo',
-        'estatus'
+        'estatus',
+        'iva'
     ];
 
     public function categoria()
