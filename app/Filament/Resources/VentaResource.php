@@ -53,27 +53,32 @@ class VentaResource extends Resource
                     ->tabs([
                         Tab::make('Datos Generales')
                             ->schema([
-                                Grid::make(4)
+                                Section::make()
                                     ->schema([
+
                                         Forms\Components\Select::make('mov')
                                             ->options([
                                                 'Factura' => 'Factura',
                                                 'Credito FIscal' => 'Credito FIscal',
                                                 'Ticket' => 'Ticket',
-                                            ])->preload()->searchable()->columnSpan(1),
-                                        Forms\Components\TextInput::make('movid')->columnSpan(1)
-                                            ->maxLength(50)->disabled(),
+                                            ])->preload()->searchable()->columnSpan(8)->required(),
+                                        Forms\Components\TextInput::make('movid')->columnSpan(8)
+                                            ->readOnly(),
                                         //Forms\Components\DatePicker::make('fechaemision')->format('d/m/Y'),
                                         DatePicker::make('fechaemision')
                                             ->native(false)
-                                            ->displayFormat('d/m/Y')->columnSpan(1),
-                                        Forms\Components\Select::make('clienteid')
+                                            ->required()
+                                            ->displayFormat('d/m/Y')->columnSpan(8),
+
+
+                                        Forms\Components\Select::make('clienteid')->label('Cliente')
                                             ->relationship(
                                                 name: 'cte',
                                                 titleAttribute: 'codigo'
                                             )->preload()
                                             ->searchable()
                                             ->live()
+                                            ->required()
                                             ->afterStateUpdated(function (Get $get, Set $set) {
 
                                                 if ($get('clienteid')) {
@@ -81,37 +86,59 @@ class VentaResource extends Resource
                                                     $set('nombre', $cte['nombre']);
                                                 }
                                             })
-                                            ->columnSpan(1),
+                                            ->columnSpan(8),
                                         Group::make()
                                             ->relationship('cte')
                                             ->schema([
                                                 TextInput::make('nombre')
                                                     ->label('Nombre')
 
-                                            ])->columnSpan(3),
-                                        Forms\Components\TextInput::make('sucursal')
-                                            ->maxLength(50),
-                                        Forms\Components\TextInput::make('referencia')
-                                            ->maxLength(50),
-                                        Forms\Components\TextInput::make('concepto')
-                                            ->maxLength(50),
-                                        Forms\Components\TextInput::make('descuentoglobal')
-                                            ->maxLength(50),
-                                        Forms\Components\TextInput::make('condicion')
-                                            ->maxLength(50),
+                                            ])->columnSpan(16),
+
+
+                                        Forms\Components\Select::make('sucursal')
+                                            ->options([
+                                                '0' => 'San Salvador',
+                                                '1' => 'San Miguel',
+
+                                            ])->preload()->searchable()->columnSpan(6),
+                                            Forms\Components\Select::make('condicion')
+                                            ->options([
+                                                'Contado' => 'Contado',
+                                                'Credito' => 'Credito',
+
+                                            ])->preload()->searchable()->columnSpan(6),
+
+                                        Forms\Components\Select::make('concepto')
+                                            ->options([
+                                                'Estudiante' => 'Estudiante',
+                                                'Negocio Formal' => 'Negocio Formal',
+
+                                            ])->preload()->searchable()->columnSpan(6),
+
+                                        Forms\Components\Select::make('descuentoglobal')
+                                            ->options([
+                                                '5' => '5 %',
+                                                '10' => '10 %',
+                                                '15' => '15 %',
+                                                '20' => '20 %',
+                                            ])->preload()->searchable()->columnSpan(6),
+
+                                            Forms\Components\TextInput::make('referencia')
+                                            ->maxLength(50)->columnSpan(12),
                                         Forms\Components\TextInput::make('comentarios')
-                                            ->maxLength(50),
-                                        Forms\Components\Select::make('id_alm')
+                                            ->maxLength(50)->columnSpan(6),
+                                        Forms\Components\Select::make('id_alm')->label('Almacen')->columnSpan(6)
                                             ->relationship(
                                                 name: 'alm',
-                                                titleAttribute: 'nombre'
+                                                titleAttribute: 'codigo'
                                             )->preload()->searchable(),
 
-                                    ])
-                            ])->columns(12)
+                                    ])->columns(24)
+                            ])->columnSpan('full')
 
 
-                    ])->activeTab(1)->columnSpan(4),
+                    ])->activeTab(1)->columnSpan('full'),
                 Section::make('Detalle Productos')->schema([
                     Repeater::make('productos')
                         ->relationship('ventads')->label('Producto')
@@ -131,7 +158,7 @@ class VentaResource extends Resource
                                         $set('importe', $producto['preciolista']);
                                         $set('producto.descripcion', $producto['descripcion']);
                                         $set('producto.iva', $producto['iva']);
-                                        $set('ivaimp', Number::currency(($producto['preciolista'] *  1) * ($producto['iva'] / 100)),'');
+                                        $set('ivaimp', (($producto['preciolista'] *  1) * ($producto['iva'] / 100)), '');
                                     }
                                 }),
                             Group::make()
@@ -148,7 +175,12 @@ class VentaResource extends Resource
                                 ->dehydrated()
                                 ->reactive()
                                 ->live()
-                                ->afterStateUpdated(fn($state, Set $set, Get $get) => $set('importe',   $state * $get('precio'))),
+                                ->afterStateUpdated(
+                                    function ($state, Set $set, Get $get) {
+                                        $set('importe',   $state * $get('precio'));
+                                        $set('ivaimp', $get('importe') * ($get('producto.iva') / 100));
+                                    }
+                                ),
                             //TextInput::make('unidad')->columnSpan(2),
                             Select::make('unidad')
                                 ->options([
@@ -161,8 +193,10 @@ class VentaResource extends Resource
                                 ->label('Precio $')
                                 ->dehydrated()
                                 ->afterStateUpdated(
-                                    fn($state, Set $set, Get $get) => $set('importe', $state * $get('cantidad'))
-
+                                    function ($state, Set $set, Get $get) {
+                                        $set('importe', $state * $get('cantidad'));
+                                        $set('ivaimp', $get('importe') * ($get('producto.iva') / 100));
+                                    }
                                 )
                                 ->numeric(),
                             TextInput::make('importe')->columnSpan(3)
@@ -174,8 +208,9 @@ class VentaResource extends Resource
                                 ->schema([
                                     TextInput::make('iva')
                                         ->label('IVA %')->readOnly()
-                                ])->columnSpan(2),
-                            TextInput::make('ivaimp')->label('Iva Imp.')->columnSpan(3)->readOnly()
+                                ])->dehydrated()->columnSpan(2),
+                            TextInput::make('ivaimp')->label('Iva Imp.')
+                                ->columnSpan(3)->readOnly()->dehydrated(),
 
                             //Hidden::make('total')->default(0)
                         ])->columns(24),
@@ -191,7 +226,7 @@ class VentaResource extends Resource
                                     }
                                     foreach ($repeaters as $key => $repeater) {
 
-                                        //$total += $get("productos.{$key}.importe");
+                                        $total += (float) $get("productos.{$key}.importe");
                                     }
 
                                     //dump($get('importetotal'));
@@ -206,7 +241,7 @@ class VentaResource extends Resource
                                     }
                                     foreach ($repeaters as $key => $repeater) {
 
-                                       // $total += $get("productos.{$key}.ivaimp");
+                                        $total += (float) $get("productos.{$key}.ivaimp");
                                     }
 
                                     //dump($get('importetotal'));
@@ -222,12 +257,12 @@ class VentaResource extends Resource
                                     }
                                     foreach ($repeaters as $key => $repeater) {
 
-                                      //  $total += $get("productos.{$key}.importe");
-                                        //$ivaimp += $get("productos.{$key}.ivaimp");
+                                        $total += (float) $get("productos.{$key}.importe");
+                                        $ivaimp += (float) $get("productos.{$key}.ivaimp");
                                     }
 
                                     //dump($get('importetotal'));
-                                    return Number::currency($total, 'USD');
+                                    return Number::currency($total + $ivaimp, 'USD');
                                 })->columns(2),
                             Hidden::make('importetotal')->default(0),
                             Hidden::make('impuestos')->default(0),
@@ -237,7 +272,7 @@ class VentaResource extends Resource
 
 
 
-                ])->columnSpan(4),
+                ])->columnSpan('full'),
 
             ]);
     }
