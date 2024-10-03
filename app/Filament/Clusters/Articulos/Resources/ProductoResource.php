@@ -48,7 +48,7 @@ class ProductoResource extends Resource
                             ->schema([
                                 Grid::make(4)
                                     ->schema([
-                                        Forms\Components\TextInput::make('producto')->columnSpan(1)
+                                        Forms\Components\TextInput::make('producto')
                                             ->required()
                                             ->maxLength(191)->disabledOn('edit'),
                                         Forms\Components\Select::make('tipo')
