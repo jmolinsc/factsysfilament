@@ -102,7 +102,7 @@ class VentaResource extends Resource
                                                 '1' => 'San Miguel',
 
                                             ])->preload()->searchable()->columnSpan(6),
-                                            Forms\Components\Select::make('condicion')
+                                        Forms\Components\Select::make('condicion')
                                             ->options([
                                                 'Contado' => 'Contado',
                                                 'Credito' => 'Credito',
@@ -124,7 +124,7 @@ class VentaResource extends Resource
                                                 '20' => '20 %',
                                             ])->preload()->searchable()->columnSpan(6),
 
-                                            Forms\Components\TextInput::make('referencia')
+                                        Forms\Components\TextInput::make('referencia')
                                             ->maxLength(50)->columnSpan(12),
                                         Forms\Components\TextInput::make('comentarios')
                                             ->maxLength(50)->columnSpan(6),
